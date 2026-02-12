@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabay sa Pagpapakatao - 3rd Grading Exam</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 900px; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: auto; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+        h3 { text-align: center; color: #7f8c8d; margin-top: 0; margin-bottom: 30px; }
+        .input-group { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        label { font-weight: bold; font-size: 1.1em; }
+        input[type="text"] { padding: 12px; width: 100%; box-sizing: border-box; border: 2px solid #ddd; border-radius: 6px; font-size: 1em; margin-top: 10px; }
+        .question-box { margin-bottom: 25px; padding: 15px; border-left: 5px solid #3498db; background: #fafafa; border-radius: 4px; }
+        .options { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .options label { font-weight: normal; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .options label:hover { background: #e8f4fd; border-color: #3498db; }
+        button { background: #27ae60; color: white; border: none; padding: 15px 30px; border-radius: 6px; cursor: pointer; font-size: 1.1em; display: block; margin: 30px auto; width: 250px; }
+        button:hover { background: #219150; }
+        #resultArea { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85em; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #34495e; color: white; }
+        .col-num { width: 30px; text-align: center; }
+        .status-check { color: #27ae60; font-weight: bold; }
+        .status-wrong { color: #e74c3c; font-weight: bold; }
+        .print-btn { background: #34495e; margin-bottom: 10px; }
+        .score-card { background: #3498db; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        
+        .signature-section { margin-top: 50px; display: flex; justify-content: space-around; text-align: center; }
+        .sig-box { width: 40%; }
+        .line { border-top: 2px solid #333; width: 100%; margin-bottom: 5px; }
+        .label-text { font-size: 0.9em; font-weight: bold; color: #555; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 10px; }
+            th { background-color: #eee !important; color: black !important; }
+            .signature-section { margin-top: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="examContainer">
+    <h1>Gabay sa Pagpapakatao</h1>
+    <h3>3rd Grading 1st Periodical Exam</h3>
+
+    <div class="input-group">
+        <label for="studentName">Pangalan ng Mag-aaral:</label>
+        <input type="text" id="studentName" placeholder="I-type ang iyong buong pangalan...">
+    </div>
+
+    <div id="quiz"></div>
+
+    <button onclick="submitExam()">I-submit ang Exam</button>
+</div>
+
+<div class="container" id="resultArea">
+    <div class="score-card">
+        <h2 style="margin:0">Resulta ng Pagsusulit</h2>
+        <p style="font-size: 1.2em;"><strong>Pangalan:</strong> <span id="resName"></span></p>
+        <h1 style="font-size: 3em; margin: 10px 0;"><span id="resScore"></span> / 25</h1>
+    </div>
+    
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th class="col-num">#</th>
+                <th>Tanong</th>
+                <th>Pinili Mo</th>
+                <th>Tamang Sagot</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="signature-section">
+        <div class="sig-box">
+            <div class="line"></div>
+            <div class="label-text">Lagda ng Guro</div>
+        </div>
+        <div class="sig-box">
+            <div class="line"></div>
+            <div class="label-text">Petsa</div>
+        </div>
+    </div>
+
+    <button class="print-btn no-print" style="margin-top: 40px;" onclick="window.print()">I-print ang Resulta (PDF)</button>
+    <button class="no-print" style="background:#7f8c8d" onclick="location.reload()">Ulitin ang Exam</button>
+</div>
+
+<script>
+    const questions = [
+        { q: "Ano ang dapat mong gawin kapag may bago kang kakilala?", a: "Maging magiliw at palakaibigan", o: ["Maging magiliw at palakaibigan", "Huwag siyang pansinin"] },
+        { q: "Dapat ba nating isama sa laro ang mga bagong kakilala?", a: "Oo, upang sila ay makasali sa saya", o: ["Oo, upang sila ay makasali sa saya", "Hindi, baka makagulo lang sila"] },
+        { q: "Ano ang tamang pakikitungo sa taong galing sa ibang lugar?", a: "Makipagkaibigan nang may pagtitiwala", o: ["Makipagkaibigan nang may pagtitiwala", "Pagtatawanan ang kanilang pananalita"] },
+        { q: "Dapat bang ipakilala sa magulang ang iyong mga bagong kaibigan?", a: "Oo, para makilala rin nila ang iyong mga kasama", o: ["Oo, para makilala rin nila ang iyong mga kasama", "Hindi na kailangan"] },
+        { q: "Ang antas ba ng pamumuhay ay hadlang sa pakikipagkaibigan?", a: "Hindi, lahat ay pantay-pantay", o: ["Oo, dapat mayaman lang ang kaibigan", "Hindi, lahat ay pantay-pantay"] },
+        { q: "Paano mo maipapakita ang pagtanggap sa bagong kaklase?", a: "Ipakikilala siya sa ibang mga kaklase", o: ["Ipakikilala siya sa ibang mga kaklase", "Hahayaan siyang mag-isa sa upuan"] },
+        { q: "May bagong bata sa inyong barangay. Ano ang gagawin mo?", a: "Isama siya sa mga gawain o laro sa barangay", o: ["Isama siya sa mga gawain o laro sa barangay", "Paalisin siya sa inyong palaruan"] },
+        { q: "Ano ang kahulugan ng pagiging 'magiliw'?", a: "Masayahin at maayos makitungo", o: ["Masayahin at maayos makitungo", "Mataray at suplado"] },
+        { q: "Mabuti bang makipagkaibigan kahit magkaiba ang inyong antas ng buhay?", a: "Oo, dahil ang mahalaga ay ang mabuting asal", o: ["Oo, dahil ang mahalaga ay ang mabuting asal", "Hindi, dahil hindi kayo pareho ng status"] },
+        { q: "Kapag may bago kang kalaro, ano ang dapat mong gawin?", a: "Turuan siya ng tamang paraan ng laro", o: ["Turuan siya ng tamang paraan ng laro", "Dayain siya para ikaw ang manalo"] },
+        { q: "Dapat ba nating piliin ang kaibigan base sa ganda ng kanilang damit?", a: "Hindi", o: ["Oo", "Hindi"] },
+        { q: "Bakit mahalagang ipakilala ang bagong kaibigan sa dati mong mga kaibigan?", a: "Para lahat kayo ay maging magkakaibigan", o: ["Para lahat kayo ay maging magkakaibigan", "Para pagselosin sila"] },
+        { q: "Ang tunay na pagkakaibigan ay nakabase sa...?", a: "Pagtitiwala at paggalang", o: ["Pagtitiwala at paggalang", "Dami ng pera"] },
+        { q: "Nahihiya ang bagong kakilala. Ano ang gagawin mo?", a: "Lalapitan at kakausapin nang mahinahon", o: ["Lalapitan at kakausapin nang mahinahon", "Tatawanan siya"] },
+        { q: "Ang pagtanggap sa kapuwa ay tanda ng...?", a: "Mabuting pagkatao", o: ["Mabuting pagkatao", "Pagiging mahina"] },
+        { q: "Dapat bang magtiwala sa bagong kakilala habang kinikilala siya?", a: "Oo, maging bukas ang loob sa kanya", o: ["Oo, maging bukas ang loob sa kanya", "Hindi kailanman"] },
+        { q: "Saan mo maaaring isama ang iyong bagong kaibigan?", a: "Sa mga kapaki-pakinabang na gawain", o: ["Sa mga kapaki-pakinabang na gawain", "Sa mga gawaing delikado"] },
+        { q: "Dapat ba tayong maging 'mapanghusga' sa mga dayo sa ating lugar?", a: "Hindi", o: ["Oo", "Hindi"] },
+        { q: "Ano ang nararamdaman ng bata kapag siya ay pinapasali sa laro?", a: "Masaya at tinatanggap", o: ["Masaya at tinatanggap", "Nalulungkot"] },
+        { q: "Ang pakikipagkaibigan ay pagpapakita ng...?", a: "Pagmamahal sa kapuwa", o: ["Pagmamahal sa kapuwa", "Pakikipag-away"] },
+        { q: "May kaklaseng walang kasabay kumain. Ano ang gagawin mo?", a: "Aanyayahin siyang sumabay sa inyo", o: ["Aanyayahin siyang sumabay sa inyo", "Pababayaan siya"] },
+        { q: "Bakit kailangang maging magalang sa lahat ng tao?", a: "Dahil bawat tao ay mahalaga", o: ["Dahil bawat tao ay mahalaga", "Para maging sikat"] },
+        { q: "Ang pagtulong sa bagong kakilala ay isang...?", a: "Mabuting asal", o: ["Mabuting asal", "Masamang gawain"] },
+        { q: "Dapat bang makilahok ang mga bagong lipat sa pyesta sa barangay?", a: "Oo, para maging bahagi sila ng komunidad", o: ["Oo, para maging bahagi sila ng komunidad", "Hindi"] },
+        { q: "Ano ang pinakamahalagang katangian ng isang kaibigan?", a: "Pagiging tapat at maunawain", o: ["Pagiging tapat at maunawain", "Pagiging mapili"] }
+    ];
+
+    const quizContainer = document.getElementById('quiz');
+    questions.forEach((item, index) => {
+        let optionsHtml = item.o.map(opt => `
+            <label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>
+        `).join('');
+        
+        quizContainer.innerHTML += `
+            <div class="question-box">
+                <p><strong>${index + 1}. ${item.q}</strong></p>
+                <div class="options">${optionsHtml}</div>
+            </div>
+        `;
+    });
+
+    function submitExam() {
+        const name = document.getElementById('studentName').value.trim();
+        if (!name) {
+            alert("Pakisulat ang iyong pangalan bago i-submit.");
+            return;
+        }
+
+        let score = 0;
+        const tableBody = document.querySelector('#resultTable tbody');
+        tableBody.innerHTML = '';
+
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const studentAnswer = selected ? selected.value : "Walang sagot";
+            const isCorrect = studentAnswer === item.a;
+            
+            if (isCorrect) score++;
+
+            tableBody.innerHTML += `
+                <tr>
+                    <td class="col-num">${index + 1}</td>
+                    <td>${item.q}</td>
+                    <td>${studentAnswer}</td>
+                    <td>${item.a}</td>
+                    <td class="${isCorrect ? 'status-check' : 'status-wrong'}">${isCorrect ? '✓ Tama' : '✗ Mali'}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('examContainer').style.display = 'none';
+        document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('resName').innerText = name;
+        document.getElementById('resScore').innerText = score;
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
